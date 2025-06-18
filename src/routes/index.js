@@ -11,13 +11,13 @@ const sachRoute = require('./sach.route')
 const muonSachRoute = require('./muonsach.route')
 
 // Định tuyến tất cả ở đây
-router.use('/publisher', nhaXuatBanRoute)
-router.use('/category', loaiSachRoute)
-router.use('/position', viTriRoute)
-router.use('/state', trangThaiRoute)
-router.use('/staff', nhanVienRoute)
-router.use('/reader', docGiaRoute)
-router.use('/book', sachRoute)
-router.use('/borrow', muonSachRoute)
+router.use('/publishers', nhaXuatBanRoute)
+router.use('/categorys', loaiSachRoute)
+router.use('/positions', viTriRoute)
+router.use('/states', trangThaiRoute)
+router.use('/staffs', nhanVienRoute)
+router.use('/readers', docGiaRoute)
+router.use('/books', sachRoute)
+router.use('/borrows', muonSachRoute)
 
 module.exports = router
