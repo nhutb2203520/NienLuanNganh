@@ -8,9 +8,12 @@ const docGiaSchema = new mongoose.Schema(
         NgaySinh: { type: Date, required: true},
         Phai: {type: String, required: true},
         DiaChi: {type: String, required: true},
+        SoSachDaMuon: {type: Number, default: 0, required: true},
         SoDienThoai: {type: String, required: true},
         Password: {type: String, required: true},
         Email: {type: String, required: true},
+        //
+        MaTT: {type: mongoose.Schema.Types.ObjectId, ref:'bangTTDocGia', required: true}
     },
     {
         timestamps: true,

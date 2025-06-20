@@ -2,11 +2,45 @@ const nhaXuatBanModel = require('../models/nhaxuatban.model')
 
 module.exports = class NhaXuatBanService{
 
+
+
+    async getAllPublisher () {
+        const publishers = await nhaXuatBanModel.find()
+        const countPublisher = await nhaXuatBanModel.countDocuments()
+        if(publishers.length === 0){
+            return {
+                message: 'Chưa có nhà xuất bản nào.'
+            }
+        }else{
+            return{
+                message: 'Lấy danh sách nhà xuất bản thành công.',
+                danhsachNXB: publishers,
+                countPublisher
+            }
+        }
+    }
+    async getOnePublisher (MaNXB) {
+        const nhaxuatban = await nhaXuatBanModel.findOne(
+            {
+                MaNXB: MaNXB
+            }
+        )
+        if(!nhaxuatban){
+            return{
+                message: 'Nhà xuất bản không tồn tại.'
+            }
+        }else{
+            return {
+                message: 'Lấy nhà xuất bản thành công.',
+                nhaxuatban: nhaxuatban
+            }
+        }
+    }
     async addPublisher(data){
         const kiemTraNXB = await nhaXuatBanModel.findOne(
             {
-                TenNXB: data.TenNXB,
-                DiaChi: data.DiaChi
+                TenNXB: data.TenNXB.trim().toLowerCase(),
+                DiaChi: data.DiaChi.trim().toLowerCase()
             }
         )
         if(kiemTraNXB){
@@ -14,6 +48,8 @@ module.exports = class NhaXuatBanService{
                 message: 'Nhà xuất bản đã tồn tại.'
             }
         }else{
+            data.TenNXB = data.TenNXB.trim().toLowerCase()
+            data.DiaChi = data.DiaChi.trim().toLowerCase()
             const nxb = new nhaXuatBanModel(data)
             await nxb.save()
             return{
@@ -21,6 +57,61 @@ module.exports = class NhaXuatBanService{
                 message: 'Thêm nhà xuất bản thành công'
             }
         }
-
+    }
+    async update(MaNXB, data){
+        const nhaxuatban = await nhaXuatBanModel.findOne(
+            {
+                MaNXB: MaNXB
+            }
+        )
+        if(!nhaxuatban){
+            return {
+                message: 'Nhà xuất bản không tồn tại.'
+            }
+        }else{
+            data.TenNXB = data.TenNXB.trim().toLowerCase()
+            data.DiaChi = data.DiaChi.trim().toLowerCase()
+            const kiemTra = await nhaXuatBanModel.findOne(
+                {
+                    MaNXB: {$ne: MaNXB},
+                    TenNXB: data.TenNXB.trim().toLowerCase(),
+                    DiaChi: data.DiaChi.trim().toLowerCase()
+                }
+            )
+            if(kiemTra) {
+                return {
+                    message: 'Nhà xuất bản đã tồn tại'
+                }
+            }
+            const updatePublisher = await nhaXuatBanModel.findOneAndUpdate(
+                {
+                    MaNXB: MaNXB
+                },
+                data,
+                {
+                    new: true
+                }
+            )
+            return {
+                message: 'Cập nhật nhà xuất bản thành công.',
+                nhaxuatban: updatePublisher
+            }
+        }
+    }
+    async delete(MaNXB){
+        const nhaxuatban = await nhaXuatBanModel.findOneAndDelete(
+            {
+                MaNXB: MaNXB
+            }
+        )
+        if(!nhaxuatban){
+            return{
+                message: 'Nhà xuất bản không tồn tại.'
+            }
+        }else{
+            return{
+                message: `Xóa nhà xuất bản có mã ${MaNXB} thành công.`
+            }
+        }
     }
 }

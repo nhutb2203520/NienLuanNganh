@@ -2,6 +2,7 @@ const docGiaModel = require('../models/docgia.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+const trangThaiDocGiaModel = require('../models/trangthaidocgia.model')
 module.exports = class DocGiaService{
 
     async register(data){
@@ -20,11 +21,14 @@ module.exports = class DocGiaService{
                     message: 'Họ tên không được để trống.'
                 }
             }
+            const readerStatus = await trangThaiDocGiaModel.findOne({TenTT: 'active'})
+            data.MaTT = readerStatus._id
             const hashedPassword = await bcrypt.hash(data.Password, 10)
             data.Password = hashedPassword
             data.Email = data.Email.toLowerCase()
             const newDG = new docGiaModel(data)
             await newDG.save()
+            await newDG.populate('MaTT')
             const {Password, ...docGiaInfo} = newDG._doc
             return {
                 docgia: docGiaInfo,
@@ -42,7 +46,12 @@ module.exports = class DocGiaService{
             {
                 $or: [{SoDienThoai: data.SoDienThoai}, {Email: data.Email}]
             }
-        )
+        ).populate('MaTT', 'TenTT')
+        if(reader && reader.MaTT?.TenTT !== 'active'){
+            return {
+                message: 'Tài khoản của bạn bị khóa do một số lý do, bạn vui lòng liên hệ thư viên để giải quyết.'
+            }
+        }
         if(!reader){
             return {
                 message: 'Số điện thoại/Email này chưa đăng ký tài khoản'
@@ -54,6 +63,7 @@ module.exports = class DocGiaService{
                     message: 'Mật khẩu không đúng.'
                 }
             }
+            
             // lưu lần đăng nhập cuối cùng
             await docGiaModel.updateOne(
                 { _id: reader._id },
