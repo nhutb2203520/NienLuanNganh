@@ -1,5 +1,6 @@
 const nhanVienModel = require('../models/nhanvien.model')
 const docGiaModel = require('../models/docgia.model')
+const trangThaiDocGiaModel = require('../models/trangthaidocgia.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { findById, findByIdAndUpdate } = require('../models/counter')
@@ -56,11 +57,6 @@ module.exports = class NhanVienService{
                     message: "Mật khẩu không đúng."
                 }
             }
-            // lưu lần đăng nhập cuối cùng
-            await nhanVienModel.updateOne(
-                { _id: staff._id },
-                { $set: { updatedAt: new Date() } }
-            );
             const {Password,...staffInfo} = staff._doc
             const token = jwt.sign(staffInfo, process.env.JWT_SECRET || 'NienLuaNganh', { expiresIn: '1h'})
             return{
@@ -96,7 +92,7 @@ module.exports = class NhanVienService{
             }
         }else{
             return {
-                staff: updateStaff,
+                nhanvien: updateStaff,
                 message: 'Cập nhật tài khoản nhân viên thành công.'
             }
         }
@@ -124,49 +120,101 @@ module.exports = class NhanVienService{
 
     }
     async getAllReaders(){
-        const readers = await docGiaModel.find().select('-Password')
+        const readers = await docGiaModel.find().select('-Password').populate('MaTT')
+        const countReader = await docGiaModel.countDocuments()
         if(readers.length === 0){
             return{
                 message: 'Chưa có độc giả đăng ký.'
             }
         }else{
             return{
-                readers: readers,
+                danhsachdocgia: readers,
+                count: countReader,
                 message: 'Lấy danh sách độc giả thành công.'
             }
         }
     }
     async getOneReader(id){
-        const reader = await docGiaModel.findById(id).select('-Password')
+        const reader = await docGiaModel.findById(id).select('-Password').populate('MaTT')
         if(!reader){
             return{
                 message: 'Độc giả không tồn tại.'
             }
         }else{
             return{
-                reader: reader,
+                docgia: reader,
                 message: 'Lấy thông tin một độc giả thành công.'
             }
         }
     }
-   async deleteOneReader(id){
-        const reader = await docGiaModel.findById(id);
+   async updateStatusReader(id, status){
+        const reader = await docGiaModel.findById(id).populate('MaTT')
         if (!reader) {
             return { message: 'Độc giả không tồn tại.' };
+        }else{
+            const idStatus = await trangThaiDocGiaModel.findOne({
+                TenTT: status.trim().toLowerCase()
+            })
+            const updateReader = await docGiaModel.findByIdAndUpdate(
+                id,
+                {
+                    $set: {
+                        MaTT: idStatus._id
+                    }
+                },
+                {
+                    new: true
+                }
+            ).populate('MaTT')
+            return{
+                message: 'Cập nhật trạng thái tài khoản độc giả thành công.',
+                docgia:  updateReader
+            }
+
         }
-        // Kiểm tra thời gian không hoạt động
-        const lastActive = reader.updatedAt
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        if (lastActive && lastActive > oneMonthAgo) {
+    }
+    async getAllReadersActive() {
+        const status = await trangThaiDocGiaModel.findOne(
+            {
+                TenTT: 'active'
+            }
+        )
+        const readers = await docGiaModel.find(
+            {
+                MaTT: status._id
+            }
+        ).populate('MaTT', 'TenTT')
+        if(readers.length === 0) {
+            return{
+                message: 'Không có tài khoản nào đang hoạt đông.'
+            }
+        }else{
             return {
-                message: 'Không thể xóa vì độc giả vẫn hoạt động trong vòng 1 tháng qua.'
-            };
+                message: 'Lấy danh sách tài khoản đang hoạt động thành công.',
+                danhsachdocgia: readers
+            }
         }
-        const deleted = await docGiaModel.findByIdAndDelete(id).select('-Password');
-        return {
-            message: 'Xóa độc giả thành công.',
-            deletedReader: deleted
-        };
+    }
+     async getAllReadersBlocked() {
+        const status = await trangThaiDocGiaModel.findOne(
+            {
+                TenTT: 'blocked'
+            }
+        )
+        const readers = await docGiaModel.find(
+            {
+                MaTT: status._id
+            }
+        ).populate('MaTT', 'TenTT')
+        if(readers.length === 0) {
+            return{
+                message: 'Không có tài khoản nào bị khóa.'
+            }
+        }else{
+            return {
+                message: 'Lấy danh sách tài khoản bị khóa thành công.',
+                danhsachdocgia: readers
+            }
+        }
     }
 }

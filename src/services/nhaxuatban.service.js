@@ -110,7 +110,7 @@ module.exports = class NhaXuatBanService{
             }
         }else{
             return{
-                message: `Xóa nhà xuất bản có mã ${MaNXB} thành công.`
+                message: `Xóa nhà xuất bản có tên "${nhaxuatban.TenNXB}" thành công.`
             }
         }
     }

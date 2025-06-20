@@ -4,7 +4,7 @@ const nhanVienController = require('../controllers/nhanvien.controller')
 
 router.post('/register', nhanVienController.StaffRegister)
     .post('/login', nhanVienController.login)
-    .patch('/changePassword', nhanVienController.changePassword)
-    .patch('/:id', nhanVienController.updateAccountStaff)
-    
+    .patch('/change-password', nhanVienController.changePassword)
+    .patch('/me', nhanVienController.updateAccountStaff)
+    //xóa tài khoản cá nhân
 module.exports = router

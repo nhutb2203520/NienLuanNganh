@@ -1,4 +1,4 @@
-const trangThaiModel = require('../models/trangthai.model')
+const trangThaiModel = require('../models/trangthaisach.model')
 
 module.exports = class TrangThaiService{
 

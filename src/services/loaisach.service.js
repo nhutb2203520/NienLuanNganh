@@ -23,6 +23,7 @@ module.exports = class LoaiSachService{
     }
     async getAll() {
         const categorys = await loaiSachModel.find()
+        const countCategory = await loaiSachModel.countDocuments()
         if(categorys.length === 0){
             return{
                 message: 'Chưa có loại sách nào.'
@@ -30,7 +31,76 @@ module.exports = class LoaiSachService{
         }else{
             return{
                 message: 'Lấy danh sách loại sách thành công.',
-                danhsachloaisach: categorys
+                danhsachloaisach: categorys,
+                count: countCategory
+            }
+        }
+    }
+    async getOne(MaLoai) {
+        const categoryBook = await loaiSachModel.findOne(
+            {
+                MaLoai: MaLoai
+            }
+        )
+        if(!categoryBook){
+            return {
+                message: 'Loại sách không tồn tại'
+            }
+        }else{
+            return {
+                message: 'Lấy thông tin loại sách thành công.',
+                loaisach: categoryBook
+            }
+        }
+    }
+    async update(MaLoai, data){
+        const categoryBook = await loaiSachModel.findOne(
+            {
+                MaLoai: MaLoai
+            }
+        )
+        if(!categoryBook){
+            return {
+                message: 'Loại sách không tồn tại.'
+            }
+        }else{
+            data.TenLoai = data.TenLoai.trim().toLowerCase()
+            const kiemTra = await loaiSachModel.findOne(
+                {
+
+                    MaLoai: {$ne: MaLoai},
+                    TenLoai: data.TenLoai
+                }
+            )
+            if(kiemTra){
+                return {
+                    message: 'Loại sách đã tồn tại.'
+                }
+            }
+            const updateCategoryBook = await loaiSachModel.findOneAndUpdate(
+                {
+                    MaLoai: MaLoai
+                },
+                data,
+                {
+                    new: true
+                }
+            )
+            return{
+                message: 'Cập nhật loại sách thành công.',
+                loaisach: updateCategoryBook
+            }
+        }
+    }
+    async delete(MaLoai){
+        const deleteCategoryBook = await loaiSachModel.findOneAndDelete({MaLoai: MaLoai})
+        if(!deleteCategoryBook){
+            return {
+                message: 'Loại sách không tồn tại.'
+            }
+        }else{
+            return {
+                message: `Loại sách có tên "${deleteCategoryBook.TenLoai}" đã xóa thành công.`
             }
         }
     }

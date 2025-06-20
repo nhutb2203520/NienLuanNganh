@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const trangThaiController = require('../controllers/trangthai.controller')
+const trangThaiController = require('../controllers/trangthaisach.controller')
 
 router.post('/', trangThaiController.addTrangThai)
 

@@ -17,6 +17,7 @@ function verifyToken (req, res) {
          })
     })
 }
+//[GET] /publishers
 module.exports.getAllPublisher = async (req, res, next) =>{
     try{
         await verifyToken(req, res)
@@ -28,6 +29,7 @@ module.exports.getAllPublisher = async (req, res, next) =>{
         return next(new ApiError(500, 'Lỗi khi lấy danh sách nhà xuất bản.'))
     }
 }
+//[GET] /publishers/:MaNXB
 module.exports.getOnePublisher = async (req, res, next) => {
     try{
         await verifyToken(req, res)
@@ -40,6 +42,7 @@ module.exports.getOnePublisher = async (req, res, next) => {
         return next(new ApiError(500, 'Lỗi khi lấy một nhà xuất bản.'))
     }
 }
+//[POST] /publishers
 module.exports.addPublisher = async (req, res, next) => {
     try{
         await verifyToken(req, res)
@@ -52,6 +55,7 @@ module.exports.addPublisher = async (req, res, next) => {
         return next(new ApiError(500, 'Lỗi khi thêm nhà xuất bản.'))
     }
 }
+//[PATCH] /publishers/:MaNXB
 module.exports.update = async (req, res, next) =>{
     try{
         await verifyToken(req, res)
@@ -65,6 +69,7 @@ module.exports.update = async (req, res, next) =>{
         return next(new ApiError(500, 'Lỗi khi cập nhật nhà xuất bản.'))
     }
 }
+//[DELETE] /publishers/:MaNXB
 module.exports.delete = async (req, res, next) => {
     try{
         await verifyToken(req, res)

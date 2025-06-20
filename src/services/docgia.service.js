@@ -63,13 +63,6 @@ module.exports = class DocGiaService{
                     message: 'Mật khẩu không đúng.'
                 }
             }
-            
-            // lưu lần đăng nhập cuối cùng
-            await docGiaModel.updateOne(
-                { _id: reader._id },
-                { $set: { updatedAt: new Date() } }
-            );
-
             const {Password, ...readerInfo} = reader._doc
             const token = jwt.sign(readerInfo, process.env.JWT_SECRET || 'NienLuanNganh', { expiresIn: '1h' })
             return {

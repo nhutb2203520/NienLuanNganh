@@ -1,5 +1,5 @@
 const ApiError  = require('../ApiError')
-const TrangThaiService = require('../services/trangthai.service')
+const TrangThaiService = require('../services/trangthaisach.service')
 
 
 module.exports.addTrangThai = async (req, res, next) => {

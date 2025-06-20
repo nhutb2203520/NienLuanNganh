@@ -17,7 +17,7 @@ function verifyToken(req, res) {
             })
         })
 }
-
+//[POST] /staffs/register
 module.exports.StaffRegister = async (req, res, next) => {
     try{
         const data = req.body
@@ -29,6 +29,7 @@ module.exports.StaffRegister = async (req, res, next) => {
         return next(new ApiError(500, 'Lỗi khi nhân viên đăng ký.'))
     }
 }
+//[POST] /staffs/login
 module.exports.login = async (req, res, next) =>{
     try{
         const data = req.body
@@ -40,19 +41,20 @@ module.exports.login = async (req, res, next) =>{
         return next(new ApiError(500, 'Lỗi khi nhân viên đăng nhập.'))
     }
 }
+//[PATCH] /staffs/me
 module.exports.updateAccountStaff = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
-        const id = req.params.id
+        const staff = await verifyToken(req, res)
         const data = req.body
         const nhanVienService = new NhanVienService()
-        const result = await nhanVienService.updateAccountStaff(id, data)
+        const result = await nhanVienService.updateAccountStaff(staff._id, data)
         return res.status(200).json(result)
     }catch(err){
         console.log(err)
         return next(new ApiError(500, 'Lỗi Khi cập nhật tài khoản nhân viên.'))
     }
 }
+//[GET] /readers
 module.exports.getAllReaders = async (req, res, next) => {
     try {
         await verifyToken(req, res);
@@ -64,6 +66,7 @@ module.exports.getAllReaders = async (req, res, next) => {
         return next(new ApiError(500, 'Lỗi khi lấy danh sách độc giả.'));
     }
 }
+//[GET] /readers/:id
 module.exports.getOneReader = async (req, res, next) => {
     try{
         await verifyToken(req, res)
@@ -76,18 +79,21 @@ module.exports.getOneReader = async (req, res, next) => {
         return next(new ApiError(500, 'Lỗi khi lấy thông tin 1 độc giả.'))
     }
 }
-module.exports.deleteOneReader = async (req, res, next) => {
+//[PATCH]  /update-status/:id
+module.exports.updateStatusReader = async (req, res, next) => {
     try{
         await verifyToken(req, res)
         const id = req.params.id
+        const status = req.body?.status
         const nhanVienService = new NhanVienService()
-        const result = await nhanVienService.deleteOneReader(id)
+        const result = await nhanVienService.updateStatusReader(id, status)
         return res.status(200).json(result)
     }catch(err){
         console.log(err)
         return next(new ApiError(500, 'Lỗi xóa độc giả.'))
     }
 }
+//[PATCH] /staffs/change-password
 module.exports.changePassword = async (req, res, next) => {
     try{
         const staff = await verifyToken(req, res)
@@ -99,5 +105,29 @@ module.exports.changePassword = async (req, res, next) => {
     }catch(err){
         console.log(err)
         return next(new ApiError(500, 'Lỗi khi nhân viên đổi mật khẩu.'))
+    }
+}
+//[GET] /readers/list-readers-active
+module.exports.getAllReadersActive = async (req, res, next) => {
+    try{
+        await verifyToken(req, res)
+        const nhanVienService = new NhanVienService()
+        const result = await nhanVienService.getAllReadersActive()
+        res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi lấy danh sách các tài khoản đang hoạt động.'))
+    }
+}
+//[GET] /readers/list-readers-blocked
+module.exports.getAllReadersBlocked = async (req, res, next) => {
+    try{
+        await verifyToken(req, res)
+        const nhanVienService = new NhanVienService()
+        const result = await nhanVienService.getAllReadersBlocked()
+        res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi lấy danh sách các tài khoản bị khóa.'))
     }
 }
