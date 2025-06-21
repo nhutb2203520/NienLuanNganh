@@ -1,0 +1,92 @@
+const tacGiaModel = require('../models/tacgia.model')
+
+module.exports = class TacGiaService{
+
+    async getAll() {
+        const authorList = await tacGiaModel.find()
+        const countAuthor = await tacGiaModel.countDocuments()
+        if(authorList.length === 0){
+            return {
+                message: 'Chưa có tác giả nào.'
+            }
+        }else{
+            return {
+                message: 'Lấy danh sách tác giả thành công.',
+                danhsachtacgia: authorList,
+                count: countAuthor
+            }
+        }
+    }
+    async add(data) {
+        const authorCheck = await tacGiaModel.findOne(
+            {
+                TenTG: data.TenTG.trim().toLowerCase()
+            }
+        )
+        if(authorCheck){
+            return {
+                message: 'Tên tác giả đã tồn tại.'
+            }
+        }else{
+            data.TenTG = data.TenTG.trim().toLowerCase()
+            const newAuthor = new tacGiaModel(data)
+            await newAuthor.save()
+            return{
+                message: 'Thêm tác giả thành công.',
+                tacgia: newAuthor
+            }
+        }
+    }
+    async getOne(id){
+        const author = await tacGiaModel.findById(id)
+        if(!author){
+            return {
+                message: 'Tác giả không tồn tại.'
+            }
+        }else{
+            return {
+                message: 'Lấy thông tin tác giả thành công.',
+                tacgia: author
+            }
+        }
+    }
+    async update(id, data){
+        const author = await tacGiaModel.findById(id)
+        if(!author){
+            return {
+                message: 'Tác giả không tồn tại.'
+            }
+        }else{
+            data.TenTG = data.TenTG.trim().toLowerCase()
+            const authorCheck = await tacGiaModel.findOne(
+                {
+                    _id: {$ne: id},
+                    TenTG: data.TenTG
+                }
+            )
+            if(authorCheck){
+                return {
+                    message: 'Tên tác giả đã tồn tại.'
+                }
+            }
+            const updateAuthor = await tacGiaModel.findByIdAndUpdate(id, data, {new: true})
+            return{
+                message: 'Cập nhật tác giả thành công.',
+                tacgia: updateAuthor
+            }
+        }
+    }
+    async delete(id){
+        const author = await tacGiaModel.findById(id)
+        if(!author){
+            return {
+                message: 'Tác giả không tồn tại.'
+            }
+        }else{
+            const deleteAuthor = await tacGiaModel.findByIdAndDelete(id)
+            return {
+                message:  `Xóa tac giả tên "${deleteAuthor.TenTG}" thành công.`
+            }
+        }
+    }
+}

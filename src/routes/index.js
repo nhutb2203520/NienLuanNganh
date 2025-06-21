@@ -21,6 +21,6 @@ router.use('/readers', docGiaRoute)
 router.use('/books', sachRoute)
 router.use('/borrows', muonSachRoute)
 router.use('/status-reader', trangThaiDocGiaRoute)
-router.use('/author', tacGiaRoute)
+router.use('/authors', tacGiaRoute)
 
 module.exports = router
