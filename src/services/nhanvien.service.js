@@ -43,7 +43,7 @@ module.exports = class NhanVienService{
         }
         const staff = await nhanVienModel.findOne(
             {
-                $or: [{SoDienThoai: data.SoDienThoai}, {Email: data.Email}]
+                $or: [{SoDienThoai: data.SoDienThoai},{Email: data.Email.trim().toLowerCase()}]
             }
         )
         if(!staff){
@@ -118,6 +118,18 @@ module.exports = class NhanVienService{
             }
         }
 
+    }
+    async delete(id){
+        const deleteStaff =  await nhanVienModel.findByIdAndDelete(id)
+        if(!deleteStaff){
+            return{
+                message: 'Tài khoản không tồn tại.'
+            }
+        }else{
+            return {
+                message: 'Xóa tài khoản thành công.'
+            }
+        }
     }
     async getAllReaders(){
         const readers = await docGiaModel.find().select('-Password').populate('MaTT')

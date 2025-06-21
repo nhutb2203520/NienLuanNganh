@@ -90,7 +90,7 @@ module.exports.updateStatusReader = async (req, res, next) => {
         return res.status(200).json(result)
     }catch(err){
         console.log(err)
-        return next(new ApiError(500, 'Lỗi xóa độc giả.'))
+        return next(new ApiError(500, 'Lỗi khi cập nhật trạng thái độc giả.'))
     }
 }
 //[PATCH] /staffs/change-password
@@ -105,6 +105,18 @@ module.exports.changePassword = async (req, res, next) => {
     }catch(err){
         console.log(err)
         return next(new ApiError(500, 'Lỗi khi nhân viên đổi mật khẩu.'))
+    }
+}
+//[DELETE] /staffs/me
+module.exports.delete = async (req, res, next) => {
+    try{
+        const staff = await verifyToken(req, res)
+        const nhanVienService = new NhanVienService()
+        const result = await nhanVienService.delete(staff._id)
+        res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi xóa tài khoản cá nhân.'))
     }
 }
 //[GET] /readers/list-readers-active

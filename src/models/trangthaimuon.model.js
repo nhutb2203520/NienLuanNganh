@@ -4,13 +4,17 @@ const counterModel = require('./counter')
 const trangThaiSchema = new mongoose.Schema(
     {
         MaTrangThai: {type: String, unique: true},
-        TenTrangThai: {type: String, required: true},
+        TenTrangThai: {
+            type: String, 
+            required: true,
+            enum: ['chờ lấy', 'đã lấy', 'đã trả']
+        },
         MoTa: { type: String}
     },
     {
         timestamps: true,
         minimize: false,
-        collection: 'TRANGTHAI'
+        collection: 'TRANGTHAISACH'
     }
 )
 trangThaiSchema.pre('save', async function(next){

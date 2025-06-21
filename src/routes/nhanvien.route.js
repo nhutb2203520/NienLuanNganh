@@ -7,4 +7,5 @@ router.post('/register', nhanVienController.StaffRegister)
     .patch('/change-password', nhanVienController.changePassword)
     .patch('/me', nhanVienController.updateAccountStaff)
     //xóa tài khoản cá nhân
+    .delete('/me', nhanVienController.delete)
 module.exports = router

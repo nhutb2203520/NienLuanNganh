@@ -7,7 +7,7 @@ const sachSchema = new mongoose.Schema(
         TenSach: {type: String, required: true},
         SoQuyen: {type: Number, required: true},
         NamXuatBan: {type: String, required: true},
-        TacGia: {type: String, required: true},
+        TacGia: [{type: mongoose.Schema.Types.ObjectId, ref: 'bangTacGia', required: true}], // mảng tác giả
         SoLuongDaMuon: {type: Number, default: 0},
         SoLuotMuon: {type: Number, default: 0},
         MaNXB: {type: mongoose.Schema.Types.ObjectId, ref: 'bangNXB', required: true},
