@@ -1,5 +1,5 @@
 const tacGiaModel = require('../models/tacgia.model')
-
+const sachModel = require('../models/sach.model')
 module.exports = class TacGiaService{
 
     async getAll() {
@@ -83,9 +83,19 @@ module.exports = class TacGiaService{
                 message: 'Tác giả không tồn tại.'
             }
         }else{
+            const checkBook = await sachModel.findOne(
+                {
+                    TacGia: author._id
+                }
+            )
+            if(checkBook){
+                return {
+                    message: 'Hiện tại có sách của tác giả này nếu xóa sẽ mất tất cả dữ liệu liên quan đến tác giả, không được xóa.'
+                }
+            }
             const deleteAuthor = await tacGiaModel.findByIdAndDelete(id)
             return {
-                message:  `Xóa tac giả tên "${deleteAuthor.TenTG}" thành công.`
+                message:  `Xóa tác giả tên "${deleteAuthor.TenTG}" thành công.`
             }
         }
     }

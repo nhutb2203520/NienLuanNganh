@@ -1,4 +1,5 @@
 const loaiSachModel = require('../models/loaisach.model')
+const sachModel = require('../models/sach.model')
 
 module.exports = class LoaiSachService{
     
@@ -93,12 +94,19 @@ module.exports = class LoaiSachService{
         }
     }
     async delete(MaLoai){
-        const deleteCategoryBook = await loaiSachModel.findOneAndDelete({MaLoai: MaLoai})
-        if(!deleteCategoryBook){
+        const categoryBook = await loaiSachModel.findOne({MaLoai: MaLoai})
+        if(!categoryBook){
             return {
                 message: 'Loại sách không tồn tại.'
             }
         }else{
+            const checkBook = await sachModel.findOne({MaLoai: categoryBook._id})
+            if(checkBook){
+                return {
+                    message: 'Hiện tại có sách thuộc loại này nếu xóa sẽ mất dữ liệu, không được xóa.'
+                }
+            }
+            const deleteCategoryBook = await loaiSachModel.findOneAndDelete({MaLoai})
             return {
                 message: `Loại sách có tên "${deleteCategoryBook.TenLoai}" đã xóa thành công.`
             }

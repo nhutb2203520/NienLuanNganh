@@ -1,20 +1,6 @@
 const ApiError = require('../ApiError')
 const DocGiaService = require('../services/docgia.service')
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
-function verifyToken(req, res){
-    const authHeader = req.headers['authorization']
-    const token = authHeader.split(' ')[1]
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET || 'NienLuanNganh', (error, reader) => {
-            if(error){
-                reject('Không có quyền')
-            }else{
-                resolve(reader)
-            }
-        })
-    })
-}
+
 //[POST] /readers/register
 module.exports.register = async (req, res, next) => {
     try{
@@ -42,7 +28,7 @@ module.exports.login = async (req, res, next) => {
 //[PATCH] /readers/me
 module.exports.updateAccount = async (req, res, next) => {
     try{
-        const reader = await verifyToken(req, res)
+        const reader = req.user
         const data = req.body
         const docGiaService = new DocGiaService()
         const result = await docGiaService.updateAccount(reader._id, data)
@@ -55,7 +41,7 @@ module.exports.updateAccount = async (req, res, next) => {
 //[DELETE] /readers/me
 module.exports.deleteMyAccount = async (req, res, next) => {
     try{
-        const reader = await verifyToken(req, res)
+        const reader = req.user
         const docGiaService = new DocGiaService()
         const result = await docGiaService.deleteAccount(reader._id)
         return res.status(200).json(result)
@@ -67,7 +53,7 @@ module.exports.deleteMyAccount = async (req, res, next) => {
 //[PATCH] /readers/change-password
 module.exports.changePassword = async (req, res, next) => {
     try{
-        const reader = await verifyToken(req, res)
+        const reader = req.user
         const {currentPassword, newPassword} = req.body
         const docGiaService = new DocGiaService()
         const result = await docGiaService.changePassword(reader._id, currentPassword, newPassword)

@@ -1,26 +1,8 @@
 const ApiError = require('../ApiError')
 const PublisherService = require('../services/nhaxuatban.service')
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
-
-
-function verifyToken (req, res) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader.split(' ')[1]
-    return new Promise((resolve, reject) => {
-         jwt.verify(token, process.env.JWT_SECRET || 'NienLuanNganh', (error, staff) => {
-            if(error || !staff.ChucVu){
-                reject('Không có quyền.')
-            }else{
-                resolve(staff)
-            }
-         })
-    })
-}
 //[GET] /publishers
 module.exports.getAllPublisher = async (req, res, next) =>{
     try{
-        await verifyToken(req, res)
         const publisherService = new PublisherService()
         const result = await publisherService.getAllPublisher()
         res.status(200).json(result)
@@ -32,7 +14,6 @@ module.exports.getAllPublisher = async (req, res, next) =>{
 //[GET] /publishers/:MaNXB
 module.exports.getOnePublisher = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const MaNXB = req.params?.MaNXB
         const publisherService = new PublisherService()
         const result = await publisherService.getOnePublisher(MaNXB)
@@ -45,7 +26,6 @@ module.exports.getOnePublisher = async (req, res, next) => {
 //[POST] /publishers
 module.exports.addPublisher = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const data = req.body
         const publisherService = new PublisherService()
         const result = await publisherService.addPublisher(data)
@@ -58,7 +38,6 @@ module.exports.addPublisher = async (req, res, next) => {
 //[PATCH] /publishers/:MaNXB
 module.exports.update = async (req, res, next) =>{
     try{
-        await verifyToken(req, res)
         const MaNXB = req.params?.MaNXB
         const data = req.body
         const publisherService = new PublisherService()
@@ -72,7 +51,6 @@ module.exports.update = async (req, res, next) =>{
 //[DELETE] /publishers/:MaNXB
 module.exports.delete = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const MaNXB = req.params?.MaNXB
         const publisherService = new PublisherService()
         const result = await publisherService.delete(MaNXB)

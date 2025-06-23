@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const nxbController = require('../controllers/nhaxuatban.controller')
+const { verifyTokenStaff } = require('../middlewares/verifyToken')
 
-router.post('/', nxbController.addPublisher)
-       .get('/', nxbController.getAllPublisher) 
-       .get('/:MaNXB',nxbController.getOnePublisher)
-       .patch('/:MaNXB', nxbController.update)
-       .delete('/:MaNXB', nxbController.delete)
+router.post('/', verifyTokenStaff, nxbController.addPublisher)
+       .get('/', verifyTokenStaff, nxbController.getAllPublisher) 
+       .get('/:MaNXB', verifyTokenStaff, nxbController.getOnePublisher)
+       .patch('/:MaNXB', verifyTokenStaff, nxbController.update)
+       .delete('/:MaNXB', verifyTokenStaff, nxbController.delete)
 module.exports = router

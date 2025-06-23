@@ -1,15 +1,8 @@
 const trangThaiModel = require('../models/trangthaimuon.model')
-
+const muonSachModel = require('../models/theodoimuonsach.model')
 module.exports = class TrangThaiService{
 
     async addTrangThai(data){
-        if(data.TenTrangThai.trim().toLowerCase() !== 'chờ lấy' 
-        && data.TenTrangThai.trim().toLowerCase() !== 'đã lấy' 
-        && data.TenTrangThai.trim().toLowerCase() !== 'đã trả'){
-            return {
-                message: 'Hệ thống chỉ chấp nhận 3 trạng thái "chờ lấy", "đã lấy" và "đã trả".'
-            }
-        }
         const kiemTraTrangThai = await trangThaiModel.findOne(
             {
                 TenTrangThai: data.TenTrangThai.trim().toLowerCase()
@@ -58,14 +51,61 @@ module.exports = class TrangThaiService{
         }
     }
     async delete(MaTrangThai){
-        const deleteState = await trangThaiModel.findOneAndDelete({MaTrangThai})
-        if(!deleteState){
+        const state = await trangThaiModel.findOne({MaTrangThai})
+        if(!state){
             return {
                 message: 'Trạng thái không tồn tại.'
             }
         }else{
+            const checkBorrow = await muonSachModel.findOne({
+                MaTrangThai: state._id
+            })
+            if(checkBorrow){
+                return {
+                    message: 'Hiện tại có phiếu mượn thuộc trạng thái này không được xóa.'
+                }
+            }
+            const deleteState = await trangThaiModel.findOneAndDelete({MaTrangThai})
             return {
                 message: `Xóa trạng thái tên "${deleteState.TenTrangThai}" thành công.`
+            }
+        }
+    }
+    async update(MaTrangThai, data) {
+        const checkStatusBook = await trangThaiModel.findOne(
+            {
+                MaTrangThai
+            }
+        )
+        if(!checkStatusBook){
+            return {
+                message: 'Trạng thái sách không tồn tại.'
+            }
+        }else{
+            data.TenTrangThai = data.TenTrangThai.trim().toLowerCase()
+            const check = await trangThaiModel.findOne(
+                {
+                    MaTrangThai: {$ne: MaTrangThai},
+                    TenTrangThai: data.TenTrangThai
+                }
+            )
+            if(check){
+                return {
+                    message: 'Tên trạng thái đã tồn tại.'
+                }
+            }
+            const updateStatusBook = await trangThaiModel.findOneAndUpdate(
+                {
+                    MaTrangThai: MaTrangThai
+                },
+                data,
+                {
+                    new: true
+                }
+            )
+            return{
+                message: 'Cập nhật trạng thái sách thành công.',
+                trangthaisach: updateStatusBook
             }
         }
     }

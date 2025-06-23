@@ -1,5 +1,5 @@
 const nhaXuatBanModel = require('../models/nhaxuatban.model')
-
+const sachModel = require('../models/sach.model')
 module.exports = class NhaXuatBanService{
 
 
@@ -99,7 +99,7 @@ module.exports = class NhaXuatBanService{
         }
     }
     async delete(MaNXB){
-        const nhaxuatban = await nhaXuatBanModel.findOneAndDelete(
+        const nhaxuatban = await nhaXuatBanModel.findOne(
             {
                 MaNXB: MaNXB
             }
@@ -109,8 +109,23 @@ module.exports = class NhaXuatBanService{
                 message: 'Nhà xuất bản không tồn tại.'
             }
         }else{
+            const checkBook = await sachModel.findOne(
+                {
+                    MaNXB: nhaxuatban._id
+                }
+            )
+            if(checkBook){
+                return {
+                    message: 'Hiện tại có sách được xuất bản từ nhà xuất bản này nếu xóa sẽ mất thông tin, không được xóa.'
+                }
+            }
+            const deletePublisher = await nhaXuatBanModel.findOneAndDelete(
+                {
+                    MaNXB
+                }
+            )
             return{
-                message: `Xóa nhà xuất bản có tên "${nhaxuatban.TenNXB}" thành công.`
+                message: `Xóa nhà xuất bản có tên "${deletePublisher.TenNXB}" thành công.`
             }
         }
     }

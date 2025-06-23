@@ -1,24 +1,9 @@
 const ApiError = require('../ApiError')
 const LoaiSachService = require('../services/loaisach.service')
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
-function verifyToken (req, res){
-    const authHeader = req.headers['authorization']
-    const token = authHeader.split(' ')[1]
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET || 'NienLuanNganh', (error, staff) => {
-            if(error || !staff.ChucVu){
-                reject('Không có quyền.')
-            }else{
-                resolve(staff)
-            }
-        })
-    })
-}
+
 //[POST] /categorys
 module.exports.addLoaiSach = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const  data = req.body
         const loaiSachService = new LoaiSachService()
         const result = await loaiSachService.addLoaiSach(data)
@@ -31,7 +16,6 @@ module.exports.addLoaiSach = async (req, res, next) => {
 //[GET] /categorys/
 module.exports.getAll = async (req, res, next) =>{
     try{
-        await verifyToken(req, res)
         const loaiSachService = new LoaiSachService()
         const result = await loaiSachService.getAll()
         res.status(200).json(result)
@@ -43,7 +27,6 @@ module.exports.getAll = async (req, res, next) =>{
 //[GET] /categorys/:MaLoai
 module.exports.getOne = async (req, res, next) =>{
     try{
-        await verifyToken(req, res)
         const MaLoai = req.params?.MaLoai
         const loaiSachService = new LoaiSachService()
         const  result = await loaiSachService.getOne(MaLoai)
@@ -56,7 +39,6 @@ module.exports.getOne = async (req, res, next) =>{
 //[PATCH] /categprys/:MaLoai
 module.exports.update = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const MaLoai = req.params?.MaLoai
         const data = req.body
         const loaiSachService = new LoaiSachService()

@@ -1,25 +1,9 @@
 const ApiError = require('../ApiError')
 const SachService = require('../services/sach.service')
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
 
-function verifyToken(req, res) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader.split(' ')[1]
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET || 'NienLuanNganh', (error, staff) => {
-            if(error || !staff.ChucVu){
-                reject('Không có quyền.')
-            }else{
-                resolve(staff)
-            }
-        })
-    })
-}
 //[POST] /books
 module.exports.addBook = async (req, res, next) => {
     try {
-        await verifyToken(req, res)
         const sachService = new SachService();
         const book = await sachService.addBook(req.body);
         res.status(201).json(book);

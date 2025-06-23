@@ -1,5 +1,6 @@
 const trangThaiDocGiaModel = require('../models/trangthaidocgia.model')
 const docGiaModel = require('../models/docgia.model')
+const { updateStatusReader } = require('../controllers/nhanvien.controller')
 
 module.exports = class TrangThaiDocGiaService{
 
@@ -75,5 +76,32 @@ module.exports = class TrangThaiDocGiaService{
                 message: `Xóa trạng thái "${deleteStatusReader.TenTT}" của độc giả thành công.`
             }
         }
+    }
+    async update(id, data){
+        const statusReader = await trangThaiDocGiaModel.findById(id)
+        if(!statusReader){
+            return{
+                message: 'Trạng thái không tồn tại.'
+            }
+        }else{
+            data.TenTT = data.TenTT.trim().toLowerCase()
+            const checkStatus = await trangThaiDocGiaModel.findOne(
+                {
+                    _id: {$ne: id},
+                    TenTT: data.TenTT
+                }
+            )
+            if(checkStatus){
+                return {
+                    message: 'Trạng thái đã tồn tại.'
+                }
+            }
+            const updateStatusReader = await trangThaiDocGiaModel.findByIdAndUpdate(id, data, {new: true})
+             return{
+                message: 'Cập nhật trạng thái thành công.',
+                trangthaidocgia: updateStatusReader,
+            }
+        }
+       
     }
 }

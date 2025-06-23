@@ -6,8 +6,7 @@ const trangThaiSchema = new mongoose.Schema(
         MaTrangThai: {type: String, unique: true},
         TenTrangThai: {
             type: String, 
-            required: true,
-            enum: ['chờ lấy', 'đã lấy', 'đã trả']
+            required: true
         },
         MoTa: { type: String}
     },

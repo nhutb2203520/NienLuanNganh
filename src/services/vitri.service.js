@@ -1,6 +1,5 @@
-const vitriModel = require('../models/vitri.model')
 const viTriModel = require('../models/vitri.model')
-
+const sachModel = require('../models/sach.model')
 module.exports = class ViTriModel{
 
     async addPosition(data){
@@ -24,7 +23,7 @@ module.exports = class ViTriModel{
     }
     async getAll(){
         const positions = await viTriModel.find()
-        const countPosition = await vitriModel.countDocuments()
+        const countPosition = await viTriModel.countDocuments()
         if(positions.length === 0) {
             return {
                 message: 'Không có vị trí nào.'
@@ -73,7 +72,7 @@ module.exports = class ViTriModel{
                     message: 'Vị trí đã tồn tại.'
                 }
             }
-            const updatePosition = await vitriModel.findOneAndUpdate(
+            const updatePosition = await viTriModel.findOneAndUpdate(
                 {
                     MaViTri
                 },
@@ -89,14 +88,25 @@ module.exports = class ViTriModel{
         }
     }
     async delete(MaViTri){
-        const position = await viTriModel.findOneAndDelete({MaViTri})
+        const position = await viTriModel.findOne({MaViTri})
         if(!position){
             return{
                 message: 'Vị trí không tồn tại.'
             }
         }else{
+            const checkBook = await sachModel.findOne(
+                {
+                    MaViTri: position._id
+                }
+            )
+            if(checkBook){
+                return{
+                    message: 'Hiện tại có sách ở vị trí này không được xóa.'
+                }
+            }
+            const deletePosition = await viTriModel.findOneAndDelete({MaViTri})
             return {
-               message: `Xóa vị trí tên "${position.TenViTri}" thành công.`
+               message: `Xóa vị trí tên "${deletePosition.TenViTri}" thành công.`
             }
         }
     }

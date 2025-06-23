@@ -1,25 +1,8 @@
 const ApiError = require('../ApiError')
 const PositionService = require('../services/vitri.service')
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
-
-function verifyToken(req, res) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader.split(' ')[1]
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET || 'NienLuanNganh', (error, staff) => {
-            if(error || !staff.ChucVu){
-                reject('Không có quyền')
-            }else{
-                resolve(staff)
-            }
-        })
-    })
-}
 //[POST] /positions/
 module.exports.addPosition = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const data = req.body
         const positionService = new PositionService()
         const result = await positionService.addPosition(data)
@@ -32,7 +15,6 @@ module.exports.addPosition = async (req, res, next) => {
 //[GET] /positions
 module.exports.getAll = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const positionService = new PositionService()
         const result = await positionService.getAll()
         res.status(200).json(result)
@@ -44,7 +26,6 @@ module.exports.getAll = async (req, res, next) => {
 //[GET] /positions/:MaViTri
 module.exports.getOne = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const MaViTri = req.params?.MaViTri
         const positionService = new PositionService()
         const result = await positionService.getOne(MaViTri)
@@ -57,7 +38,6 @@ module.exports.getOne = async (req, res, next) => {
 //[PATCH] /positions/:MaViTri
 module.exports.update = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const MaViTri = req.params?.MaViTri
         const data = req.body
         const positionService = new PositionService()
@@ -71,7 +51,6 @@ module.exports.update = async (req, res, next) => {
 //[DELETE] /positions/:MaViTri
 module.exports.delete = async (req, res, next) => {
     try{
-        await verifyToken(req, res)
         const MaViTri = req.params?.MaViTri
         const positionService = new PositionService()
         const result = await positionService.delete(MaViTri)
