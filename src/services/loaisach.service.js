@@ -5,15 +5,16 @@ module.exports = class LoaiSachService{
     
 
     async addLoaiSach(data) {
+        const tenLoaiCheck = data.TenLoai.trim()
         const kiemTraLS = await loaiSachModel.findOne({
-            TenLoai: data.TenLoai.trim().toLowerCase()
+            TenLoai: { $regex: `^${tenLoaiCheck}$`, $options: 'i' }
         })
         if(kiemTraLS){
             return{
                 message: 'Loại sách đã tồn tại.'
             }
         }else{
-            data.TenLoai = data.TenLoai.trim().toLowerCase()
+            data.TenLoai = data.TenLoai.trim()
             const newLoaiSach = new loaiSachModel(data)
             await newLoaiSach.save()
             return {
@@ -65,12 +66,12 @@ module.exports = class LoaiSachService{
                 message: 'Loại sách không tồn tại.'
             }
         }else{
-            data.TenLoai = data.TenLoai.trim().toLowerCase()
+            data.TenLoai = data.TenLoai.trim()
             const kiemTra = await loaiSachModel.findOne(
                 {
 
                     MaLoai: {$ne: MaLoai},
-                    TenLoai: data.TenLoai
+                    TenLoai: {$regex: `^${data.TenLoai}$`, $options: 'i'}
                 }
             )
             if(kiemTra){
@@ -106,7 +107,7 @@ module.exports = class LoaiSachService{
                     message: 'Hiện tại có sách thuộc loại này nếu xóa sẽ mất dữ liệu, không được xóa.'
                 }
             }
-            const deleteCategoryBook = await loaiSachModel.findOneAndDelete({MaLoai})
+            const deleteCategoryBook = await loaiSachModel.findByIdAndDelete(categoryBook._id)
             return {
                 message: `Loại sách có tên "${deleteCategoryBook.TenLoai}" đã xóa thành công.`
             }

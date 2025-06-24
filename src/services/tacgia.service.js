@@ -20,7 +20,7 @@ module.exports = class TacGiaService{
     async add(data) {
         const authorCheck = await tacGiaModel.findOne(
             {
-                TenTG: data.TenTG.trim().toLowerCase()
+                TenTG: { $regex: `^${data.TenTG.trim()}$`, $options: 'i'}
             }
         )
         if(authorCheck){
@@ -28,7 +28,7 @@ module.exports = class TacGiaService{
                 message: 'Tên tác giả đã tồn tại.'
             }
         }else{
-            data.TenTG = data.TenTG.trim().toLowerCase()
+            data.TenTG = data.TenTG.trim()
             const newAuthor = new tacGiaModel(data)
             await newAuthor.save()
             return{
@@ -57,11 +57,11 @@ module.exports = class TacGiaService{
                 message: 'Tác giả không tồn tại.'
             }
         }else{
-            data.TenTG = data.TenTG.trim().toLowerCase()
+            data.TenTG = data.TenTG.trim()
             const authorCheck = await tacGiaModel.findOne(
                 {
                     _id: {$ne: id},
-                    TenTG: data.TenTG
+                    TenTG: { $regex: `^${data.TenTG}$`, $options: 'i'}
                 }
             )
             if(authorCheck){

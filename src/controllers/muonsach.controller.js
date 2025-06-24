@@ -1,0 +1,57 @@
+const ApiError = require('../ApiError')
+const MuonSachService = require('../services/muonsach.service')
+
+module.exports.add = async (req, res, next) => {
+    try{
+        const MaSach = req.params?.MaSach
+        const MaDocGia = req.user._id
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.add({MaDocGia, MaSach})
+        return res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi đăng ký mượn sách.'))
+    }
+}
+module.exports.getAllForUser = async (req, res, next) => {
+    try{
+        const MaDocGia = req.user._id
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.getAllForUser(MaDocGia)
+        return res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi lấy danh sách phiếu mượn cho người dùng.'))
+    }
+}
+module.exports.getAllForAdmin = async (req, res, next) => {
+    try{
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.getAllForAdmin()
+        return res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi lấy danh sách phiếu mượn cho admin.'))
+    }
+}
+module.exports.updateTrangThai = async (req, res, next) => {
+    try{
+        const MaMuon = req.params?.MaMuon
+        const MaNhanVien = req.staff._id
+        const trangThai = req.body?.TrangThai
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.updateTrangThai(MaMuon, trangThai, MaNhanVien)
+        return res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi cập nhật trạng thái mượn sách.'))
+    }
+}
+module.exports.getBorrowsDeadline = async (req, res, next) => {
+    try{
+
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi lấy danh sách sách sắp đến hạn.'))
+    }
+}

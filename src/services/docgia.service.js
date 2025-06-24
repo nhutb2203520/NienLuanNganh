@@ -25,7 +25,7 @@ module.exports = class DocGiaService{
             data.MaTT = readerStatus._id
             const hashedPassword = await bcrypt.hash(data.Password, 10)
             data.Password = hashedPassword
-            data.Email = data.Email.toLowerCase()
+            data.Email = data.Email.trim().toLowerCase()
             const newDG = new docGiaModel(data)
             await newDG.save()
             await newDG.populate('MaTT')
@@ -44,7 +44,7 @@ module.exports = class DocGiaService{
         }
         const reader = await docGiaModel.findOne(
             {
-                $or: [{SoDienThoai: data.SoDienThoai}, {Email: data.Email}]
+                $or: [{SoDienThoai: data.SoDienThoai.trim()}, {Email: data.Email.trim().toLowerCase()}]
             }
         ).populate('MaTT', 'TenTT')
         if(reader && reader.MaTT?.TenTT !== 'active'){
@@ -76,7 +76,7 @@ module.exports = class DocGiaService{
         const kiemTraReader = await docGiaModel.findOne(
             {
                 _id: {$ne: id},
-                $or: [{SoDienThoai: data.SoDienThoai}, {Email: data.Email}]
+                $or: [{SoDienThoai: data.SoDienThoai.trim()}, {Email: data.Email.trim().toLowerCase()}]
             }
         )
         if(kiemTraReader){

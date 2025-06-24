@@ -6,4 +6,6 @@ const { verifyTokenStaff } = require('../middlewares/verifyToken')
 router.post('/', verifyTokenStaff, sachController.addBook)
     .get('/', sachController.getAll)
     .get('/:MaSach', sachController.getOne)
+    .patch('/:MaSach', verifyTokenStaff, sachController.update)
+    .delete('/:MaSach', verifyTokenStaff, sachController.delete)
 module.exports = router

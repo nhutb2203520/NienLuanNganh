@@ -39,8 +39,8 @@ module.exports = class NhaXuatBanService{
     async addPublisher(data){
         const kiemTraNXB = await nhaXuatBanModel.findOne(
             {
-                TenNXB: data.TenNXB.trim().toLowerCase(),
-                DiaChi: data.DiaChi.trim().toLowerCase()
+                TenNXB: {$regex: `^${data.TenNXB.trim()}$`, $options: 'i'},
+                DiaChi: {$regex: `^${data.DiaChi.trim()}$`, $options: 'i'}
             }
         )
         if(kiemTraNXB){
@@ -48,8 +48,8 @@ module.exports = class NhaXuatBanService{
                 message: 'Nhà xuất bản đã tồn tại.'
             }
         }else{
-            data.TenNXB = data.TenNXB.trim().toLowerCase()
-            data.DiaChi = data.DiaChi.trim().toLowerCase()
+            data.TenNXB = data.TenNXB.trim()
+            data.DiaChi = data.DiaChi.trim()
             const nxb = new nhaXuatBanModel(data)
             await nxb.save()
             return{
@@ -69,13 +69,13 @@ module.exports = class NhaXuatBanService{
                 message: 'Nhà xuất bản không tồn tại.'
             }
         }else{
-            data.TenNXB = data.TenNXB.trim().toLowerCase()
-            data.DiaChi = data.DiaChi.trim().toLowerCase()
+            data.TenNXB = data.TenNXB.trim()
+            data.DiaChi = data.DiaChi.trim()
             const kiemTra = await nhaXuatBanModel.findOne(
                 {
                     MaNXB: {$ne: MaNXB},
-                    TenNXB: data.TenNXB.trim().toLowerCase(),
-                    DiaChi: data.DiaChi.trim().toLowerCase()
+                    TenNXB: {$regex: `^${data.TenNXB.trim()}$`, $options: 'i'},
+                    DiaChi: {$regex: `^${data.DiaChi.trim()}$`, $options: 'i'}
                 }
             )
             if(kiemTra) {
@@ -119,11 +119,7 @@ module.exports = class NhaXuatBanService{
                     message: 'Hiện tại có sách được xuất bản từ nhà xuất bản này nếu xóa sẽ mất thông tin, không được xóa.'
                 }
             }
-            const deletePublisher = await nhaXuatBanModel.findOneAndDelete(
-                {
-                    MaNXB
-                }
-            )
+            const deletePublisher = await nhaXuatBanModel.findByIdAndDelete(nhaxuatban._id)
             return{
                 message: `Xóa nhà xuất bản có tên "${deletePublisher.TenNXB}" thành công.`
             }
