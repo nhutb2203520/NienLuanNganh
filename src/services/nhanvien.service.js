@@ -43,7 +43,7 @@ module.exports = class NhanVienService{
         }
         const staff = await nhanVienModel.findOne(
             {
-                $or: [{SoDienThoai: data.SoDienThoai},{Email: data.Email.trim().toLowerCase()}]
+                $or: [{SoDienThoai: data.SoDienThoai},{Email: data.Email.toLowerCase()}]
             }
         )
         if(!staff){

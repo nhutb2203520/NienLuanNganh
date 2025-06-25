@@ -44,7 +44,7 @@ module.exports = class DocGiaService{
         }
         const reader = await docGiaModel.findOne(
             {
-                $or: [{SoDienThoai: data.SoDienThoai.trim()}, {Email: data.Email.trim().toLowerCase()}]
+                $or: [{SoDienThoai: data.SoDienThoai}, {Email: data.Email.toLowerCase()}]
             }
         ).populate('MaTT', 'TenTT')
         if(reader && reader.MaTT?.TenTT !== 'active'){

@@ -10,7 +10,16 @@
             MaSach: {type: mongoose.Schema.Types.ObjectId, ref: 'bangSach', required: true},
             MaTrangThai: {type: mongoose.Schema.Types.ObjectId, ref: 'bangTrangThai', required: true},
             MaDocGia: {type: mongoose.Schema.Types.ObjectId, ref: 'bangDocGia', required: true},
-            MaNhanVien: {type: mongoose.Schema.Types.ObjectId, ref: 'bangNhanVien'}
+            MaNhanVien: {type: mongoose.Schema.Types.ObjectId, ref: 'bangNhanVien'},
+            ThoiGianChoLay: {
+                type: Date,
+                default: Date.now,
+                expires: 60 * 60 * 24 // 24 giờ
+            },
+            DaGiaHan: {
+                type: Boolean,
+                default: false
+            }
         },
         {
             timestamps: true,

@@ -11,6 +11,7 @@ const sachRoute = require('./sach.route')
 const muonSachRoute = require('./muonsach.route')
 const trangThaiDocGiaRoute = require('./trangthaidocgia.route')
 const tacGiaRoute = require('./tacgia.route')
+const authRoute = require('./auth.route')
 // Định tuyến tất cả ở đây
 router.use('/publishers', nhaXuatBanRoute)
 router.use('/categorys', loaiSachRoute)
@@ -22,5 +23,6 @@ router.use('/books', sachRoute)
 router.use('/borrows', muonSachRoute)
 router.use('/status-reader', trangThaiDocGiaRoute)
 router.use('/authors', tacGiaRoute)
+router.use('/auth', authRoute)
 
 module.exports = router

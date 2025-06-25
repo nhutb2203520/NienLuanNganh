@@ -49,9 +49,35 @@ module.exports.updateTrangThai = async (req, res, next) => {
 }
 module.exports.getBorrowsDeadline = async (req, res, next) => {
     try{
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.getAllBorrowDeadline()
+        return res.status(200).json(result)
 
     }catch(err){
         console.log(err)
         return next(new ApiError(500, 'Lỗi khi lấy danh sách sách sắp đến hạn.'))
+    }
+}
+module.exports.sendEmailToReader = async (req, res, next) => {
+    try{
+        const  MaMuonSach  = req.params?.MaMuonSach
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.sendEmailToReader(MaMuonSach)
+        return res.status(200).json(result)
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi gửi Email nhắc sắp đến hạn trả sách.'))
+    }
+}
+module.exports.extendBorrow = async (req, res, next) => {
+    try{
+        const MaMuonSach = req.params?.MaMuonSach
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.extendBorrow(MaMuonSach)
+        return res.status(200).json(result)
+
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi gia hạn sách.'))
     }
 }
