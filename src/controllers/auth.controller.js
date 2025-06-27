@@ -3,8 +3,8 @@ const ApiError = require('../ApiError')
 
 module.exports.forgotPassword = async (req, res) => {
   try {
-    const { Email } = req.body;
-    const result = await AuthService.requestResetPassword(Email);
+    const { identifier } = req.body;
+    const result = await AuthService.requestResetPassword(identifier);
     return res.json(result);
   } catch (err) {
     console.log(err)
@@ -15,8 +15,8 @@ module.exports.forgotPassword = async (req, res) => {
 module.exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
-    const { password } = req.body;
-    const result = await AuthService.resetPassword(token, password);
+    const { Password } = req.body;
+    const result = await AuthService.resetPassword(token, Password);
     return res.json(result);
   } catch (err) {
     console.log(err)

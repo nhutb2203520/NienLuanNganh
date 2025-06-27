@@ -2,11 +2,13 @@ const express = require('express')
 const cors = require('cors')
 const connectDB = require('./src/config/mongoose')
 const routes = require('./src/routes/')
+const path = require('path')
 const ApiError = require('./src/ApiError')
 require('dotenv').config()
 const app = express()
 connectDB(process.env.MONGODB_URI)
 app.use(express.json())
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 app.use(cors())
 
 app.get('/', (req, res) => {

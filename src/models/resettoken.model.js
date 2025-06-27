@@ -6,7 +6,8 @@ const resetTokenSchema = new mongoose.Schema({
   expiresAt: { type: Date, required: true },
 },
 {
-    timestamps: true
+    timestamps: true,
+    collection: 'RESETTOKEN'
 }
 );
 

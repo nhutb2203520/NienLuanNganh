@@ -10,6 +10,7 @@ const sachSchema = new mongoose.Schema(
         TacGia: [{type: mongoose.Schema.Types.ObjectId, ref: 'bangTacGia', required: true}], // mảng tác giả
         SoLuongDaMuon: {type: Number, default: 0},
         SoLuotMuon: {type: Number, default: 0},
+        MoTa: {type: String},
         MaNXB: {type: mongoose.Schema.Types.ObjectId, ref: 'bangNXB', required: true},
         MaLoai: {type: mongoose.Schema.Types.ObjectId, ref: 'bangLoaiSach', required: true},
         MaViTri: {type: mongoose.Schema.Types.ObjectId, ref: 'bangViTri', required: true}

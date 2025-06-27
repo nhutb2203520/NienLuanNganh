@@ -247,6 +247,7 @@ module.exports = class MuonSachService {
       sach.SoLuongDaMuon = (sach.SoLuongDaMuon || 0) + 1;
       sach.SoLuotMuon = (sach.SoLuotMuon || 0) + 1;
       await sach.save()
+      muonSach.ThoiGianChoLay = null
     }
     // Nếu chuyển sang 'đã trả' thì cập nhật ngày trả
     if (tenTrangThaiMoi === "đã trả") {
