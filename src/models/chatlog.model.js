@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const chatLogSchema = new mongoose.Schema({
-    sessionId: { type: String, required: true },
+    MaDocGia: { type: mongoose.Schema.Types.ObjectId, ref: 'bangDocGia', required: true },
     question: { type: String, required: true },
     answer: { type: String, required: true }
     },

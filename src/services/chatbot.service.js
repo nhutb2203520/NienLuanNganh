@@ -9,9 +9,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const sessions = {};
 
 class ChatbotService {
-  static async getResponse(message, sessionId = "default") {
+  static async getResponse(message, MaDocGia) {
     const userMessage = message.toLowerCase();
-    const history = sessions[sessionId] || [];
+    const history = sessions[MaDocGia] || [];
     // Chuẩn hóa để so sánh
     const normalize = (str) =>
       (str || "")
@@ -21,30 +21,30 @@ class ChatbotService {
         .toLowerCase();
     const normalizedMessage = normalize(userMessage);
     // 👉 Phát hiện câu hỏi về số lượng sách trong thư viện
-if (
-  normalizedMessage.includes("bao nhieu sach") ||
-  normalizedMessage.includes("bao nhiêu sách") ||
-  normalizedMessage.includes("tong so sach") ||
-  normalizedMessage.includes("tổng số sách") ||
-  normalizedMessage.includes("thu vien co bao nhieu") ||
-  normalizedMessage.includes("có bao nhiêu sách")
-) {
-  const totalBooks = await Sach.countDocuments({});
-  const reply = `📚 Thư viện hiện có tổng cộng khoảng **${totalBooks} đầu sách** khác nhau. Bạn muốn tìm sách gì cụ thể không?`;
+    if (
+      normalizedMessage.includes("bao nhieu sach") ||
+      normalizedMessage.includes("bao nhiêu sách") ||
+      normalizedMessage.includes("tong so sach") ||
+      normalizedMessage.includes("tổng số sách") ||
+      normalizedMessage.includes("thu vien co bao nhieu") ||
+      normalizedMessage.includes("có bao nhiêu sách")
+    ) {
+      const totalBooks = await Sach.countDocuments({});
+      const reply = `📚 Thư viện hiện có tổng cộng khoảng **${totalBooks} đầu sách** khác nhau. Bạn muốn tìm sách gì cụ thể không?`;
 
-  // Lưu session + log
-  history.push({ role: "user", content: userMessage });
-  history.push({ role: "assistant", content: reply });
-  sessions[sessionId] = history;
+      // Lưu session + log
+      history.push({ role: "user", content: userMessage });
+      history.push({ role: "assistant", content: reply });
+      sessions[MaDocGia] = history;
 
-  await ChatLog.create({
-    sessionId,
-    question: userMessage,
-    answer: reply,
-  });
+      await ChatLog.create({
+        MaDocGia,
+        question: userMessage,
+        answer: reply,
+      });
 
-  return reply;
-}
+      return reply;
+    }
 
     // Lấy tất cả tên sách
     const allBooks = await Sach.find({}, "TenSach");
@@ -86,9 +86,9 @@ if (
     } else if (matchedAuthorNames.length > 0) {
       // Nếu tìm thấy tên tác giả nằm trong câu người dùng
       query = { TacGia: { $in: allAuthorsId } };
-    }else if (matchedPublisherNames.length > 0) {
-        // Nếu tìm thấy tên nhà xuất bản nằm trong câu người dùng
-        query = { MaNXB: { $in: allPublishersId }}
+    } else if (matchedPublisherNames.length > 0) {
+      // Nếu tìm thấy tên nhà xuất bản nằm trong câu người dùng
+      query = { MaNXB: { $in: allPublishersId } };
     }
     // Tìm sách
     const sachList = await Sach.find(query)
@@ -105,20 +105,22 @@ if (
       ? sachList
           .map((s) => {
             let tacgia = "Không rõ";
-                if (Array.isArray(s.TacGia)) {
-                    tacgia = s.TacGia.map(t => {
-                        const name = t.TenTG || "Không rõ";
-                        const desc = t.MoTa ? ` (${t.MoTa})` : "";
-                        return name + desc;
-                    }).join(", ");
-                    } else if (s.TacGia?.TenTG) {
-                    tacgia = s.TacGia.TenTG;
-                    if (s.TacGia.MoTa) tacgia += ` (${s.TacGia.MoTa})`;
-                }
+            if (Array.isArray(s.TacGia)) {
+              tacgia = s.TacGia.map((t) => {
+                const name = t.TenTG || "Không rõ";
+                const desc = t.MoTa ? ` (${t.MoTa})` : "";
+                return name + desc;
+              }).join(", ");
+            } else if (s.TacGia?.TenTG) {
+              tacgia = s.TacGia.TenTG;
+              if (s.TacGia.MoTa) tacgia += ` (${s.TacGia.MoTa})`;
+            }
 
             return `📘 Mình tìm thấy một cuốn sách phù hợp: **"${s.TenSach}"**.
         Tác giả: **${tacgia}**  
-        Nhà xuất bản: **${s.MaNXB?.TenNXB || "Không rõ"} (Địa chỉ ${s.MaNXB?.DiaChi || "Không rõ"} )**  
+        Nhà xuất bản: **${s.MaNXB?.TenNXB || "Không rõ"} (Địa chỉ ${
+              s.MaNXB?.DiaChi || "Không rõ"
+            } )**  
         Mô tả: **${s.MoTa || "Không rõ"}**
         Thể loại: **${s.MaLoai?.TenLoai || "Không rõ"}**, phát hành năm **${
               s.NamXuatBan
@@ -129,11 +131,14 @@ if (
           })
           .join("\n\n---\n\n")
       : "Thư viện hiện không có sách phù hợp.";
-
-    console.log("🧾 Nội dung gửi vào GPT:\n", sachText);
-          if (!matchedBookTitles.length && !matchedAuthorNames.length && !matchedPublisherNames.length) {
-            sachText = "Hiện chưa rõ bạn đang cần tìm loại sách nào cụ thể. Tuy nhiên thư viện có nhiều sách thuộc các lĩnh vực như văn học, công nghệ, khoa học, lịch sử,... Bạn có thể hỏi rõ hơn để mình hỗ trợ tốt hơn nhé!";
-        }
+    if (
+      !matchedBookTitles.length &&
+      !matchedAuthorNames.length &&
+      !matchedPublisherNames.length
+    ) {
+      sachText =
+        "Hiện chưa rõ bạn đang cần tìm loại sách nào cụ thể. Tuy nhiên thư viện có nhiều sách thuộc các lĩnh vực như văn học, công nghệ, khoa học, lịch sử,... Bạn có thể hỏi rõ hơn để mình hỗ trợ tốt hơn nhé!";
+    }
 
     // Gửi cho GPT nếu cần phản hồi thêm
     const messages = [
@@ -161,11 +166,11 @@ if (
     // Cập nhật session
     history.push({ role: "user", content: userMessage });
     history.push({ role: "assistant", content: reply });
-    sessions[sessionId] = history;
+    sessions[MaDocGia] = history;
 
     // Ghi lại log
     await ChatLog.create({
-      sessionId,
+      MaDocGia,
       question: userMessage,
       answer: reply,
     });
@@ -173,5 +178,4 @@ if (
     return reply;
   }
 }
-
 module.exports = ChatbotService;
