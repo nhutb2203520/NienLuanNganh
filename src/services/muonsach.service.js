@@ -392,4 +392,39 @@ module.exports = class MuonSachService {
       ngayTraMoi: muonSach.NgayTra
     };
   }
+  async getBorrowsLateTime() {
+    const trangThaiDaLay = await this.getTrangThaiId('đã lấy')
+    if(!trangThaiDaLay){
+      return{
+        message: 'Trạng thái không hợp lệ.'
+      }
+    }
+    const ngayHienTai = new Date()
+    const phieuMuonDaQuaHan = await muonSachModel.find(
+      {
+        MaTrangThai: trangThaiDaLay,
+        NgayTra: { $lt: ngayHienTai }
+      }
+    ).populate([
+      {path: "MaDocGia", select: "-Password" },
+      {path: "MaSach", 
+        populate: [
+              { path: "TacGia", select: "TenTG" },
+              { path: "MaLoai", select: "TenLoai" },
+              { path: "MaViTri", select: "TenViTri" },
+              { path: "MaNXB", select: "TenNXB" },
+          ]
+      },
+    ])
+    if(phieuMuonDaQuaHan.length === 0) {
+      return {
+        message: 'Không có phiếu mượn nào đã quá hạn.'
+      }
+    }else{
+      return {
+        message: `Có ${phieuMuonDaQuaHan.length} phiếu mượn đã quá hạn.`,
+        danhsach: phieuMuonDaQuaHan,
+      };
+    }
+  }
 };

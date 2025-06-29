@@ -13,7 +13,8 @@ const sachSchema = new mongoose.Schema(
         MoTa: {type: String},
         MaNXB: {type: mongoose.Schema.Types.ObjectId, ref: 'bangNXB', required: true},
         MaLoai: {type: mongoose.Schema.Types.ObjectId, ref: 'bangLoaiSach', required: true},
-        MaViTri: {type: mongoose.Schema.Types.ObjectId, ref: 'bangViTri', required: true}
+        MaViTri: {type: mongoose.Schema.Types.ObjectId, ref: 'bangViTri', required: true},
+        image: {type: String,}
     },{
         timestamps: true,
         minimize: false,

@@ -1,8 +1,10 @@
 const docGiaModel = require('../models/docgia.model')
+const muonSachModel = require('../models/theodoimuonsach.model')
+const trangThaiMuonModel = require('../models/trangthaimuon.model')
+const trangThaiDocGiaModel = require('../models/trangthaidocgia.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
-const trangThaiDocGiaModel = require('../models/trangthaidocgia.model')
 module.exports = class DocGiaService{
 
     async register(data){
@@ -37,14 +39,14 @@ module.exports = class DocGiaService{
         }
     }
     async login(data){
-        if(!data.SoDienThoai && !data.Email){
+        if(!data.identifier){
             return {
                 message: 'Vui lòng nhập số điện thoại hoặc email để đăng nhập.'
             }
         }
         const reader = await docGiaModel.findOne(
             {
-                $or: [{SoDienThoai: data.SoDienThoai}, {Email: data.Email}]
+                $or: [{SoDienThoai: data.identifier.trim().toLowerCase()}, {Email: data.identifier.trim().toLowerCase()}]
             }
         ).populate('MaTT', 'TenTT')
         if(reader && reader.MaTT?.TenTT !== 'active'){
@@ -132,5 +134,34 @@ module.exports = class DocGiaService{
                 message: 'Đổi mật khẩu thành công.'
             }
         }
+    }
+    async blockReaderLateTimeFiveDays(){
+        const trangThaiMuon = await trangThaiMuonModel.findOne({TenTrangThai: {$regex: '^đã lấy$', $options: 'i'}})
+        if (!trangThaiMuon) return { message: "Không tìm thấy trạng thái 'đã lấy'" };
+        
+        const ngayHienTai = new Date();
+        const hanChamNhat = new Date(ngayHienTai);
+        hanChamNhat.setDate(ngayHienTai.getDate() - 5);
+
+        const danhSachQuaHan = await muonSachModel.find(
+            {
+                MaTrangThai: trangThaiMuon._id,
+                NgayTra: { $lt: hanChamNhat }
+            }
+        )
+        const trangThaiBlocked = await trangThaiDocGiaModel.findOne({TenTT: 'blocked'})
+        
+        let soLuongQuaHan = 0
+        for(const muon of danhSachQuaHan){
+           const docGia = await docGiaModel.findById(muon.MaDocGia) 
+           if(docGia.MaTT.toString() !== trangThaiBlocked._id.toString()){
+                docGia.MaTT = trangThaiBlocked._id
+                await docGia.save()
+                soLuongQuaHan++
+            }
+        }
+        return {
+            message: `Đã chặn ${soLuongQuaHan} độc giả quá hạn trả sách hơn 5 ngày.`
+        };
     }
 }

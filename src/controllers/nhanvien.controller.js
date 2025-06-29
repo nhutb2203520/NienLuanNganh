@@ -65,7 +65,7 @@ module.exports.getOneReader = async (req, res, next) => {
 module.exports.updateStatusReader = async (req, res, next) => {
     try{
         const id = req.params.id
-        const status = req.body?.status
+        const status = req.body?.TrangThai
         const nhanVienService = new NhanVienService()
         const result = await nhanVienService.updateStatusReader(id, status)
         return res.status(200).json(result)

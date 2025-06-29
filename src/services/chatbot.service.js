@@ -144,7 +144,7 @@ class ChatbotService {
     const messages = [
       {
         role: "system",
-        content: `Bạn là trợ lý AI cho thư viện Nhân Nhựt. Trả lời dựa **chính xác vào dữ liệu sách dưới đây**, không tự suy đoán hay bịa đặt nếu không có dữ liệu.`,
+        content: `Bạn là trợ lý AI cho thư viện. Trả lời dựa **chính xác vào dữ liệu sách dưới đây**, không tự suy đoán hay bịa đặt nếu không có dữ liệu.`,
       },
       {
         role: "system",

@@ -81,3 +81,14 @@ module.exports.extendBorrow = async (req, res, next) => {
         return next(new ApiError(500, 'Lỗi khi gia hạn sách.'))
     }
 }
+module.exports.getBorrowsLateTime = async (req, res, next) => {
+    try{
+        const muonSachService = new MuonSachService()
+        const result = await muonSachService.getBorrowsLateTime()
+        return res.status(200).json(result)
+
+    }catch(err){
+        console.log(err)
+        return next(new ApiError(500, 'Lỗi khi lấy danh sách sách đã quá hạn.'))
+    }
+}

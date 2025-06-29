@@ -25,6 +25,8 @@ module.exports = class NhanVienService{
             }
             const hashedPassword = await bcrypt.hash(data.Password, 10)
             data.Password = hashedPassword
+            data.SoDienThoai = data.SoDienThoai.trim()
+            data.Email = data.Email.trim().toLowerCase()
             const newNV = new nhanVienModel(data)
             await newNV.save()
             const {Password, ...staffInfo} = newNV._doc
@@ -36,14 +38,14 @@ module.exports = class NhanVienService{
     }
 
     async login(data){
-        if(!data.SoDienThoai && !data.Email){
+        if(!data.identifier){
             return {
                 message: 'Vui lòng nhập số điện thoại hoặc email để đăng nhập.'
             }
         }
         const staff = await nhanVienModel.findOne(
             {
-                $or: [{SoDienThoai: data.SoDienThoai},{Email: data.Email}]
+                $or: [{SoDienThoai: data.identifier.trim().toLowerCase()},{Email: data.identifier.trim().toLowerCase()}]
             }
         )
         if(!staff){
@@ -71,8 +73,8 @@ module.exports = class NhanVienService{
             {
                 _id: {$ne: id},
                 $or: [
-                    {SoDienThoai: data.SoDienThoai},
-                    {Email: data.Email}
+                    {SoDienThoai: data.SoDienThoai.trim()},
+                    {Email: data.Email.trim().toLowerCase()}
                 ]
             }
         )

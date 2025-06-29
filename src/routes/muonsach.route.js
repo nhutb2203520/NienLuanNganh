@@ -9,6 +9,7 @@ router.post('/:MaSach', verifyTokenUser, muonSachController.add)
     .patch('/extend/:MaMuonSach', verifyTokenUser, muonSachController.extendBorrow)
     .patch('/:MaMuon', verifyTokenStaff, muonSachController.updateTrangThai)
     .get('/borrows-deadline', verifyTokenStaff, muonSachController.getBorrowsDeadline)
+    .get('/late-time', verifyTokenStaff, muonSachController.getBorrowsLateTime)
     .post('/send-email-deadline/:MaMuonSach', verifyTokenStaff, muonSachController.sendEmailToReader)
     
 module.exports = router
