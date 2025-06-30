@@ -2,7 +2,7 @@ const muonSachModel = require("../models/theodoimuonsach.model");
 const docGiaModel = require("../models/docgia.model");
 const sachModel = require("../models/sach.model");
 const trangThaiModel = require("../models/trangthaimuon.model");
-const { sendMail } = require('../utils/mailer')
+const { sendMail } = require("../utils/mailer");
 require("dotenv").config();
 
 module.exports = class MuonSachService {
@@ -69,12 +69,12 @@ module.exports = class MuonSachService {
       MaDocGia,
       MaSach,
       MaTrangThai: newMaTrangThai,
-      ThoiGianChoLay: new Date()
+      ThoiGianChoLay: new Date(),
     });
     const html = `
   <h3>Xin chào ${docGia.HoTen},</h3>
-  <p>Bạn đã đăng ký mượn sách "${sach.TenSach}". Vui lòng đến lấy trong 24 giờ.</p>`
-    sendMail(docGia.Email, 'Thông báo đăng ký mượn sách', html)
+  <p>Bạn đã đăng ký mượn sách "${sach.TenSach}". Vui lòng đến lấy trong 24 giờ.</p>`;
+    sendMail(docGia.Email, "Thông báo đăng ký mượn sách", html);
     await newMuonSach.populate([
       {
         path: "MaDocGia",
@@ -235,7 +235,7 @@ module.exports = class MuonSachService {
         message: `Không thể chuyển từ trạng thái "${tenTrangThaiHienTai}" sang "${tenTrangThaiMoi}".`,
       };
     }
-    const sach = await sachModel.findById(muonSach.MaSach)
+    const sach = await sachModel.findById(muonSach.MaSach);
     // Nếu chuyển sang 'đã lấy' thì cập nhật ngày mượn
     if (tenTrangThaiMoi === "đã lấy") {
       const ngayHienTai = new Date();
@@ -246,14 +246,14 @@ module.exports = class MuonSachService {
       muonSach.NgayTra = ngayTraTuDong;
       sach.SoLuongDaMuon = (sach.SoLuongDaMuon || 0) + 1;
       sach.SoLuotMuon = (sach.SoLuotMuon || 0) + 1;
-      await sach.save()
-      muonSach.ThoiGianChoLay = null
+      await sach.save();
+      muonSach.ThoiGianChoLay = null;
     }
     // Nếu chuyển sang 'đã trả' thì cập nhật ngày trả
     if (tenTrangThaiMoi === "đã trả") {
       muonSach.NgayTra = new Date();
-      sach.SoLuongDaMuon -= 1
-      await sach.save() 
+      sach.SoLuongDaMuon -= 1;
+      await sach.save();
     }
 
     muonSach.MaTrangThai = trangThaiMoiDoc._id;
@@ -289,90 +289,101 @@ module.exports = class MuonSachService {
       phieumuon: muonSach,
     };
   }
-  async getAllBorrowDeadline(){
-    const trangThaiDaLay = await this.getTrangThaiId('đã lấy')
-    if(!trangThaiDaLay){
-      return{
-        message: 'Trạng thái không hợp lệ.'
-      }
+  async getAllBorrowDeadline() {
+    const trangThaiDaLay = await this.getTrangThaiId("đã lấy");
+    if (!trangThaiDaLay) {
+      return {
+        message: "Trạng thái không hợp lệ.",
+      };
     }
-    const ngayHienTai = new Date()
-    const ngayMai = new Date()
-    ngayMai.setDate(ngayHienTai.getDate() + 1)
-    const phieuMuonSapHetHan = await muonSachModel.find(
-      {
+    const ngayHienTai = new Date();
+    const ngayMai = new Date();
+    ngayMai.setDate(ngayHienTai.getDate() + 1);
+    const phieuMuonSapHetHan = await muonSachModel
+      .find({
         MaTrangThai: trangThaiDaLay,
         NgayTra: {
           $gte: ngayHienTai,
-          $lte: ngayMai
-        }
-      }
-    ).populate([
-      { path: "MaDocGia", select: "-Password" },
-      {
+          $lte: ngayMai,
+        },
+      })
+      .populate([
+        { path: "MaDocGia", select: "-Password" },
+        {
           path: "MaSach",
           populate: [
-              { path: "TacGia", select: "TenTG" },
-              { path: "MaLoai", select: "TenLoai" },
-              { path: "MaViTri", select: "TenViTri" },
-              { path: "MaNXB", select: "TenNXB" },
-          ]
-      },
-      { path: "MaTrangThai", select: "TenTrangThai" }
-    ])
-    if(phieuMuonSapHetHan.length === 0) {
+            { path: "TacGia", select: "TenTG" },
+            { path: "MaLoai", select: "TenLoai" },
+            { path: "MaViTri", select: "TenViTri" },
+            { path: "MaNXB", select: "TenNXB" },
+          ],
+        },
+        { path: "MaTrangThai", select: "TenTrangThai" },
+      ]);
+    if (phieuMuonSapHetHan.length === 0) {
       return {
-        message: 'Không có phiếu mượn nào sắp đến hạn.'
-      }
+        message: "Không có phiếu mượn nào sắp đến hạn.",
+      };
     }
     return {
-        message: `Có ${phieuMuonSapHetHan.length} phiếu mượn sắp đến hạn.`,
-        danhsach: phieuMuonSapHetHan,
+      message: `Có ${phieuMuonSapHetHan.length} phiếu mượn sắp đến hạn.`,
+      danhsach: phieuMuonSapHetHan,
     };
   }
-  async sendEmailToReader(MaMuonSach){
-    const muon = await muonSachModel.findOne({MaMuonSach}).populate([
+  async sendEmailToReader(MaMuonSach) {
+    const muon = await muonSachModel.findOne({ MaMuonSach }).populate([
       {
         path: "MaDocGia",
-        select: "-Password"
+        select: "-Password",
       },
       {
-        path: "MaSach"
-      }
-    ])
-    if(!muon){
+        path: "MaSach",
+      },
+    ]);
+    if (!muon) {
       return {
-        message: 'Phiếu mượn không tồn tại.'
-      }
-    }else{
+        message: "Phiếu mượn không tồn tại.",
+      };
+    } else {
       const html = `<h3>Xin chào ${muon.MaDocGia.HoTen},</h3>
-        <p>Bạn đã mượn sách "${muon.MaSach.TenSach}" và sẽ đến hạn trả vào <strong>${new Date(muon.NgayTra).toLocaleDateString()}</strong>.</p>
+        <p>Bạn đã mượn sách "${
+          muon.MaSach.TenSach
+        }" và sẽ đến hạn trả vào <strong>${new Date(
+        muon.NgayTra
+      ).toLocaleDateString()}</strong>.</p>
         <p>Vui lòng đến trả đúng hạn để không bị xử lý quá hạn.</p>
-      `
-      const docGia = await docGiaModel.findById(muon.MaDocGia)
-      await sendMail(docGia.Email, 'Thông báo hạn trả sách', html)
-      return{
-        message: 'Gửi email thông báo hạn trả sách thành công.'
-      }
+      `;
+      const docGia = await docGiaModel.findById(muon.MaDocGia);
+      await sendMail(docGia.Email, "Thông báo hạn trả sách", html);
+      return {
+        message: "Gửi email thông báo hạn trả sách thành công.",
+      };
     }
   }
-  async extendBorrow(MaMuonSach){
-    const muonSach = await muonSachModel.findOne({ MaMuonSach }).populate([
-      { path: "MaDocGia", select: "-Password" },
-      { path: "MaSach" }
-    ]);
-    if(!muonSach){
-      return{
-        message: 'Phiếu mượn không tồn tại.'
-      }
+  async extendBorrow(MaMuonSach) {
+    const muonSach = await muonSachModel
+      .findOne({ MaMuonSach })
+      .populate([
+        { path: "MaDocGia", select: "-Password" },
+        { path: "MaSach" },
+      ]);
+    if (!muonSach) {
+      return {
+        message: "Phiếu mượn không tồn tại.",
+      };
     }
-    const trangThai = await trangThaiModel.findById(muonSach.MaTrangThai)
-    const tenTrangThai = trangThai?.TenTrangThai?.toLocaleLowerCase()
-    if(tenTrangThai !== 'đã lấy'){
-      return { message: "Chỉ được gia hạn khi sách đang ở trạng thái 'đã lấy'." };
+    const trangThai = await trangThaiModel.findById(muonSach.MaTrangThai);
+    const tenTrangThai = trangThai?.TenTrangThai?.toLocaleLowerCase();
+    if (tenTrangThai !== "đã lấy") {
+      return {
+        message: "Chỉ được gia hạn khi sách đang ở trạng thái 'đã lấy'.",
+      };
     }
-     if (muonSach.DaGiaHan) {
-      return { message: "Phiếu mượn này đã được gia hạn một lần rồi, không thể gia hạn nữa." };
+    if (muonSach.DaGiaHan) {
+      return {
+        message:
+          "Phiếu mượn này đã được gia hạn một lần rồi, không thể gia hạn nữa.",
+      };
     }
     // Gia hạn thêm 3 ngày
     const ngayTraMoi = new Date(muonSach.NgayTra);
@@ -380,7 +391,7 @@ module.exports = class MuonSachService {
     muonSach.NgayTra = ngayTraMoi;
     muonSach.DaGiaHan = true;
     await muonSach.save();
-    
+
     const html = `<h3>Xin chào ${muonSach.MaDocGia.HoTen},</h3>
     <p>Quyển sách "${muonSach.MaSach.TenSach}" của bạn đã được gia hạn.</p>
     <p>Hạn trả mới là: <strong>${ngayTraMoi.toLocaleDateString()}</strong>.</p>`;
@@ -389,42 +400,80 @@ module.exports = class MuonSachService {
 
     return {
       message: "Gia hạn mượn sách thành công.",
-      ngayTraMoi: muonSach.NgayTra
+      ngayTraMoi: muonSach.NgayTra,
     };
   }
   async getBorrowsLateTime() {
-    const trangThaiDaLay = await this.getTrangThaiId('đã lấy')
-    if(!trangThaiDaLay){
-      return{
-        message: 'Trạng thái không hợp lệ.'
-      }
-    }
-    const ngayHienTai = new Date()
-    const phieuMuonDaQuaHan = await muonSachModel.find(
-      {
-        MaTrangThai: trangThaiDaLay,
-        NgayTra: { $lt: ngayHienTai }
-      }
-    ).populate([
-      {path: "MaDocGia", select: "-Password" },
-      {path: "MaSach", 
-        populate: [
-              { path: "TacGia", select: "TenTG" },
-              { path: "MaLoai", select: "TenLoai" },
-              { path: "MaViTri", select: "TenViTri" },
-              { path: "MaNXB", select: "TenNXB" },
-          ]
-      },
-    ])
-    if(phieuMuonDaQuaHan.length === 0) {
+    const trangThaiDaLay = await this.getTrangThaiId("đã lấy");
+    if (!trangThaiDaLay) {
       return {
-        message: 'Không có phiếu mượn nào đã quá hạn.'
-      }
-    }else{
+        message: "Trạng thái không hợp lệ.",
+      };
+    }
+    const ngayHienTai = new Date();
+    const phieuMuonDaQuaHan = await muonSachModel
+      .find({
+        MaTrangThai: trangThaiDaLay,
+        NgayTra: { $lt: ngayHienTai },
+      })
+      .populate([
+        { path: "MaDocGia", select: "-Password" },
+        {
+          path: "MaSach",
+          populate: [
+            { path: "TacGia", select: "TenTG" },
+            { path: "MaLoai", select: "TenLoai" },
+            { path: "MaViTri", select: "TenViTri" },
+            { path: "MaNXB", select: "TenNXB" },
+          ],
+        },
+      ]);
+    if (phieuMuonDaQuaHan.length === 0) {
+      return {
+        message: "Không có phiếu mượn nào đã quá hạn.",
+      };
+    } else {
       return {
         message: `Có ${phieuMuonDaQuaHan.length} phiếu mượn đã quá hạn.`,
         danhsach: phieuMuonDaQuaHan,
       };
     }
+  }
+
+  async cancelBorrowRequest(MaMuonSach, MaDocGia) {
+    // Tìm phiếu mượn theo mã
+    const phieuMuon = await muonSachModel
+      .findOne({ MaMuonSach })
+      .populate([
+        { path: "MaDocGia", select: "-Password" },
+        { path: "MaSach" },
+        { path: "MaTrangThai" },
+      ]);
+
+    if (!phieuMuon) {
+      return { message: "Phiếu mượn không tồn tại." };
+    }
+
+    // Kiểm tra độc giả có phải người sở hữu phiếu mượn không
+    if (phieuMuon.MaDocGia._id.toString() !== MaDocGia.toString()) {
+      return {
+        message: "Bạn không có quyền hủy phiếu mượn này.",
+      };
+    }
+
+    // Chỉ cho phép hủy khi phiếu đang ở trạng thái 'chờ lấy'
+    const tenTrangThai =
+      phieuMuon.MaTrangThai?.TenTrangThai?.toLowerCase().trim();
+    if (tenTrangThai !== "chờ lấy") {
+      return {
+        message: `Chỉ có thể hủy khi sách đang ở trạng thái "chờ lấy". Trạng thái hiện tại: "${tenTrangThai}".`,
+      };
+    }
+    // Xoá phiếu mượn
+    await muonSachModel.deleteOne({ MaMuonSach });
+
+    return {
+      message: `Đã hủy thành công yêu cầu mượn sách "${phieuMuon.MaSach.TenSach}".`,
+    };
   }
 };
